@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VeryHarsh</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="photo.css">
+<link rel="stylesheet" href="dev.css">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { overflow-x: hidden; font-family: 'DM Sans', sans-serif; }
+
+/* Mode Switcher */
+.switcher {
+  position: fixed; top: 28px; left: 50%; transform: translateX(-50%);
+  z-index: 9999; display: flex; align-items: center;
+  background: rgba(20,20,20,0.85); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 100px; padding: 5px; backdrop-filter: blur(16px); gap: 4px;
+  transition: background 0.5s, border-color 0.5s;
+}
+.switcher.light-switcher { background: rgba(255,255,255,0.88); border-color: rgba(0,0,0,0.1); }
+.sw-btn {
+  padding: 8px 22px; border-radius: 100px; border: none; cursor: pointer;
+  font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; background: transparent; color: rgba(255,255,255,0.45);
+  transition: all 0.3s;
+}
+.switcher.light-switcher .sw-btn { color: rgba(0,0,0,0.35); }
+.sw-btn.active { background: #c8ff00; color: #0a0a0a; font-weight: 700; }
+.sw-btn.active.dev-active { background: #1a1a2e; color: #fff; }
+
+/* Animations */
+#photo-portfolio, #dev-portfolio { animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── KERO BOT ── */
+#kero-btn {
+  position: fixed; bottom: 32px; right: 32px; z-index: 9998;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: #c8ff00; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s;
+  box-shadow: 0 4px 24px rgba(200,255,0,0.35);
+}
+#kero-btn:hover { transform: scale(1.08); }
+#kero-rings { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; }
+#kero-rings span { position: absolute; inset: -4px; border-radius: 50%; border: 2px solid rgba(200,255,0,0.4); opacity: 0; }
+#kero-rings span:nth-child(2) { inset: -10px; border-color: rgba(200,255,0,0.2); }
+.bot-listening #kero-rings span { animation: kripple 1.2s ease-out infinite; }
+.bot-listening #kero-rings span:nth-child(2) { animation-delay: 0.4s; }
+@keyframes kripple { 0% { opacity: 1; transform: scale(0.9); } 100% { opacity: 0; transform: scale(1.5); } }
+
+#kero-panel {
+  position: fixed; bottom: 100px; right: 32px; z-index: 9997;
+  width: 340px; background: #111; border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; overflow: hidden; display: none; flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+}
+#kero-panel.open { display: flex; }
+#kero-header {
+  padding: 14px 18px; border-bottom: 1px solid rgba(255,255,255,0.07);
+  display: flex; align-items: center; justify-content: space-between;
+  background: #0e0e0e;
+}
+#kero-name { font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700; color: #c8ff00; }
+#kero-status {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(255,255,255,0.25);
+  padding: 2px 8px; border: 1px solid rgba(255,255,255,0.1); border-radius: 100px;
+}
+#kero-close { background: none; border: none; color: rgba(255,255,255,0.3); cursor: pointer; font-size: 14px; }
+#kero-close:hover { color: #fff; }
+#kero-messages {
+  flex: 1; padding: 16px; display: flex; flex-direction: column;
+  gap: 10px; max-height: 260px; overflow-y: auto; scrollbar-width: none;
+}
+#kero-messages::-webkit-scrollbar { display: none; }
+.kero-msg { padding: 10px 14px; border-radius: 10px; font-size: 13px; line-height: 1.5; max-width: 88%; }
+.kero-msg.bot { background: rgba(200,255,0,0.08); border: 1px solid rgba(200,255,0,0.12); color: #f0ede6; align-self: flex-start; border-radius: 10px 10px 10px 2px; }
+.kero-msg.user { background: rgba(255,255,255,0.07); color: rgba(240,237,230,0.6); align-self: flex-end; border-radius: 10px 10px 2px 10px; font-style: italic; }
+#kero-input-row { padding: 14px 16px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; flex-direction: column; gap: 8px; }
+#kero-hint { font-size: 10px; color: rgba(255,255,255,0.25); font-family: 'Space Mono', monospace; text-align: center; line-height: 1.8; }
+#kero-examples { font-size: 9px; color: rgba(255,255,255,0.15); font-family: 'Space Mono', monospace; text-align: center; line-height: 1.8; }
+</style>
+</head>
+<body>
+
+<!-- MODE SWITCHER -->
+<div class="switcher light-switcher" id="switcher">
+  <button class="sw-btn" id="photo-btn" onclick="showMode('photo')">Photo</button>
+  <button class="sw-btn active dev-active" id="dev-btn" onclick="showMode('dev')">Dev</button>
+</div>
+
+<!-- ════════ PHOTO PORTFOLIO ════════ -->
+<div id="photo-portfolio">
+  <nav class="ph-nav">
+    <div class="ph-logo">VeryHarsh</div>
+    <ul class="ph-nav-links">
+      <li><a href="#ph-about">About</a></li>
+      <li><a href="#ph-gallery">Work</a></li>
+      <li><a href="#ph-contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <div class="ph-hero">
+    <div class="ph-hero-left">
+      <p class="ph-tag">Photography · Ontario, Canada</p>
+      <h1 class="ph-hero-title">Very<br><span>Harsh</span></h1>
+      <p class="ph-hero-sub">Automotive. Nature. The city through the canopy. Shot on iPhone — edited with intention.</p>
+    </div>
+    <div class="ph-hero-right">
+      <div class="ph-thumb" style="grid-row:span 2;">
+        <div style="font-size:40px;opacity:0.06;color:#f0ede6;">◻</div>
+        <span class="ph-thumb-label">Featured</span>
+      </div>
+      <div class="ph-thumb">
+        <div style="font-size:28px;opacity:0.06;color:#f0ede6;">◻</div>
+        <span class="ph-thumb-label">Automotive</span>
+      </div>
+      <div class="ph-thumb">
+        <div style="font-size:28px;opacity:0.06;color:#f0ede6;">◻</div>
+        <span class="ph-thumb-label">Nature</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="ph-about">
+    <div class="ph-about">
+      <div class="ph-about-left">
+        <h2>The eye behind the lens.</h2>
+        <p>Based in Ontario, shooting automotive and nature photography on iPhone. Every frame is deliberate — composition first, edit second.</p>
+        <p style="margin-top:16px;">Brand: VeryHarsh. No softness, no compromise. Raw captures and honest edits in Lightroom.</p>
+      </div>
+      <div class="ph-divider"></div>
+      <div class="ph-about-right">
+        <div class="ph-gear-item">
+          <div class="ph-gear-num">01</div>
+          <div class="ph-gear-text"><strong>Gear</strong>iPhone · Lightroom Desktop · Custom VeryHarsh preset</div>
+        </div>
+        <div class="ph-gear-item">
+          <div class="ph-gear-num">02</div>
+          <div class="ph-gear-text"><strong>Style</strong>Dark moody edits · Teal shadows · Cinematic crop ratios</div>
+        </div>
+        <div class="ph-gear-item">
+          <div class="ph-gear-num">03</div>
+          <div class="ph-gear-text"><strong>Subjects</strong>Automotive · Nature · Urban · Street</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ph-gallery">
+    <p class="ph-section-label">Selected Work</p>
+    <div class="ph-masonry">
+      <div class="ph-cell span2h"><div class="ph-cell-icon">◻</div><span class="ph-cell-tag">Automotive</span></div>
+      <div class="ph-cell span2v"><div class="ph-cell-icon">◻</div><span class="ph-cell-tag">Nature</span></div>
+      <div class="ph-cell"><div class="ph-cell-icon">◻</div><span class="ph-cell-tag">Urban</span></div>
+      <div class="ph-cell"><div class="ph-cell-icon">◻</div><span class="ph-cell-tag">Street</span></div>
+      <div class="ph-cell span2h"><div class="ph-cell-icon">◻</div><span class="ph-cell-tag">Golden Hour</span></div>
+    </div>
+  </div>
+
+  <div id="ph-contact">
+    <div class="ph-contact">
+      <h2>Let's<br>shoot<br><em>together.</em></h2>
+      <div class="ph-contact-links">
+        <a href="https://instagram.com" class="ph-clink" target="_blank"><span>Instagram — @veryharsh</span><span>↗</span></a>
+        <a href="https://veryharsh.dev" class="ph-clink" target="_blank"><span>veryharsh.dev</span><span>↗</span></a>
+        <a href="/cdn-cgi/l/email-protection#c6aea3aaaaa986b0a3b4bfaea7b4b5aee8a2a3b0" class="ph-clink"><span><span class="__cf_email__" data-cfemail="6109040d0d0e211704131809001312094f050417">[email&#160;protected]</span></span><span>↗</span></a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="ph-footer">
+    <p>© 2026 VeryHarsh</p>
+    <p>Shot on iPhone · Ontario</p>
+    <p>Built different.</p>
+  </footer>
+</div>
+
+<!-- ════════ DEV PORTFOLIO ════════ -->
+<div id="dev-portfolio">
+  <nav class="dv-nav">
+    <div class="dv-logo">harsh<span>.</span>dev</div>
+    <ul class="dv-nav-links">
+      <li><a href="#dv-skills">Skills</a></li>
+      <li><a href="#dv-projects">Projects</a></li>
+      <li><a href="#dv-exp">Experience</a></li>
+      <li><a href="#dv-contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <div class="dv-hero">
+    <div class="dv-hero-left">
+      <div class="dv-available"><span class="dv-dot"></span>Available for work · Ontario, Canada</div>
+      <h1 class="dv-name">Hi, I'm<br><strong>Harsh.</strong></h1>
+      <p class="dv-role">Junior Developer · IT Support · QA Tester</p>
+      <p class="dv-bio">Computer programming graduate building full-stack projects and shipping real products. Looking for my first full-time tech role in Ontario.</p>
+      <div class="dv-cta-row">
+        <a href="#dv-projects" class="dv-btn-primary">View Projects</a>
+        <a href="#dv-contact" class="dv-btn-secondary">Get in Touch</a>
+      </div>
+    </div>
+    <div class="dv-hero-card">
+      <p class="dv-card-label">Quick Info</p>
+      <div class="dv-info-row"><span class="dv-info-key">Location</span><span class="dv-info-val">Ontario, Canada</span></div>
+      <div class="dv-info-row"><span class="dv-info-key">Status</span><span class="dv-badge green">Work Permit · Active</span></div>
+      <div class="dv-info-row"><span class="dv-info-key">Education</span><span class="dv-info-val">Computer Programming</span></div>
+      <div class="dv-info-row"><span class="dv-info-key">Looking for</span><span class="dv-badge blue">Full-time Tech Role</span></div>
+      <div class="dv-info-row"><span class="dv-info-key">Portfolio</span><span class="dv-info-val">veryharsh.dev</span></div>
+    </div>
+  </div>
+
+  <div id="dv-skills" class="dv-skills-section">
+    <div style="max-width:1280px;margin:0 auto;">
+      <h2 class="dv-section-title">Skills & Tools</h2>
+      <p class="dv-section-sub">// what I work with</p>
+      <div class="dv-skills-cols">
+        <div class="dv-skill-col"><h4>Frontend</h4><span class="dv-skill-tag">HTML</span><span class="dv-skill-tag">CSS</span><span class="dv-skill-tag">JavaScript</span><span class="dv-skill-tag">React</span></div>
+        <div class="dv-skill-col"><h4>Backend</h4><span class="dv-skill-tag">Python</span><span class="dv-skill-tag">Node.js</span><span class="dv-skill-tag">SQL</span><span class="dv-skill-tag">REST APIs</span></div>
+        <div class="dv-skill-col"><h4>Tools</h4><span class="dv-skill-tag">Git</span><span class="dv-skill-tag">Linux</span><span class="dv-skill-tag">VS Code</span><span class="dv-skill-tag">OBS</span></div>
+        <div class="dv-skill-col"><h4>Other</h4><span class="dv-skill-tag">IT Support</span><span class="dv-skill-tag">QA Testing</span><span class="dv-skill-tag">Figma</span><span class="dv-skill-tag">Lightroom</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dv-projects" class="dv-projects">
+    <h2 class="dv-section-title">Projects</h2>
+    <p class="dv-section-sub">// things I've built</p>
+    <div class="dv-projects-list">
+      <a class="dv-project-row" href="#"><span class="dv-proj-num">01</span><div><div class="dv-proj-name">ColdThread</div><div class="dv-proj-desc">AI-powered email composer built for cold outreach that actually lands</div></div><div class="dv-proj-stack"><span class="dv-proj-tech">React</span><span class="dv-proj-tech">Node</span><span class="dv-proj-tech">AI</span></div><span class="dv-proj-status concept">Coming soon</span><span class="dv-proj-arrow">→</span></a>
+      <a class="dv-project-row" href="#"><span class="dv-proj-num">02</span><div><div class="dv-proj-name">ShotClock</div><div class="dv-proj-desc">Job application tracker — every app logged, every deadline on the clock</div></div><div class="dv-proj-stack"><span class="dv-proj-tech">React</span><span class="dv-proj-tech">Firebase</span></div><span class="dv-proj-status concept">Coming soon</span><span class="dv-proj-arrow">→</span></a>
+      <a class="dv-project-row" href="#"><span class="dv-proj-num">03</span><div><div class="dv-proj-name">PaperDrop</div><div class="dv-proj-desc">Drop your bank statements, get a full budget breakdown — no manual entry</div></div><div class="dv-proj-stack"><span class="dv-proj-tech">Python</span><span class="dv-proj-tech">PDF</span><span class="dv-proj-tech">JS</span></div><span class="dv-proj-status concept">Coming soon</span><span class="dv-proj-arrow">→</span></a>
+      <a class="dv-project-row" href="https://veryharsh.dev" target="_blank"><span class="dv-proj-num">04</span><div><div class="dv-proj-name">VeryHarsh Portfolio</div><div class="dv-proj-desc">Dual-mode portfolio — photo creative & developer professional</div></div><div class="dv-proj-stack"><span class="dv-proj-tech">HTML</span><span class="dv-proj-tech">CSS</span><span class="dv-proj-tech">JS</span></div><span class="dv-proj-status" style="color:#2d7a1f;">Live</span><span class="dv-proj-arrow">→</span></a>
+    </div>
+  </div>
+
+  <div id="dv-exp" class="dv-exp">
+    <h2 class="dv-section-title">Experience</h2>
+    <p class="dv-section-sub">// where I've been</p>
+    <div class="dv-exp-list">
+      <div class="dv-exp-item">
+        <div class="dv-exp-date">2025 — Present</div>
+        <div><div class="dv-exp-role">Customer Service & Operations</div><div class="dv-exp-company">Cineplex · Part-time</div><div class="dv-exp-desc">Guest-facing role handling high-volume customer interactions, POS systems, and operational workflows in a fast-paced environment.</div></div>
+      </div>
+      <div class="dv-exp-item">
+        <div class="dv-exp-date">Jan – Apr 2025</div>
+        <div><div class="dv-exp-role">Computer Programming Diploma</div><div class="dv-exp-company">Ontario College · Graduate</div><div class="dv-exp-desc">Completed coursework in programming fundamentals, databases, networking, and software development. Expanding via freeCodeCamp.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dv-contact" class="dv-contact">
+    <div>
+      <h2>Open<br>to <span>work.</span></h2>
+      <p class="dv-contact-sub">Seeking full-time tech roles in Ontario — IT Support, QA Tester, Junior Developer. Canadian work permit active. Let's talk.</p>
+    </div>
+    <div class="dv-contact-links">
+      <a href="https://linkedin.com" class="dv-clink" target="_blank"><span>LinkedIn</span><span>↗</span></a>
+      <a href="https://github.com" class="dv-clink" target="_blank"><span>GitHub</span><span>↗</span></a>
+      <a href="https://veryharsh.dev" class="dv-clink" target="_blank"><span>veryharsh.dev</span><span>↗</span></a>
+      <a href="/cdn-cgi/l/email-protection#90f8f5fcfcffd0e6f5e2e9f8f1e2e3f8bef4f5e6" class="dv-clink"><span><span class="__cf_email__" data-cfemail="ea828f868685aa9c8f9893828b989982c48e8f9c">[email&#160;protected]</span></span><span>↗</span></a>
+    </div>
+  </div>
+
+  <footer class="dv-footer">
+    <p>© 2026 Harsh · harsh.dev</p>
+    <p>Ontario, Canada · Work Permit Active</p>
+    <p>Available for hire</p>
+  </footer>
+</div>
+
+<!-- ════════ KERO BOT ════════ -->
+<div id="kero-btn" onclick="toggleBot()">
+  <span style="font-size:22px;">🎙</span>
+  <div id="kero-rings"><span></span><span></span></div>
+</div>
+
+<div id="kero-panel">
+  <div id="kero-header">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <span id="kero-name">Kero</span>
+      <span id="kero-status">idle</span>
+    </div>
+    <button id="kero-close" onclick="toggleBot()">✕</button>
+  </div>
+  <div id="kero-messages"></div>
+  <div id="kero-input-row">
+    <div id="kero-hint">mic is active — say <span style="color:#c8ff00;">"Kero"</span> anytime</div>
+    <div id="kero-examples">projects · photography · show dev mode · tell a joke · roast me</div>
+  </div>
+</div>
+
+<script src="portfolio.js"></script>
+<script src="bot.js"></script>
+</body>
+</html>
